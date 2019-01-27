@@ -7,16 +7,24 @@ import (
 	"os"
 
 	"github.com/alex-laties/slackfirehose/oauth"
+	"github.com/caarlos0/env"
 	"github.com/nlopes/slack"
 )
 
-const clientID = "20678827605.529118891108"
-const clientSecret = "0cce6c1983650e8554882a35c3550cf7"
-const port = 49953
+type config struct {
+	clientID     string `env:"CLIENT_ID"`
+	clientSecret string `env:"CLIENT_SECRET"`
+	port         int    `env:"PORT"`
+}
 
 // Run loads up a local http server and prints out to stdout a URL to use
 func Run() error {
-	agent, err := oauth.NewFlowAgent(clientID, clientSecret, "localhost", port)
+	cfg := config{}
+	if err := env.Parse(&cfg); err != nil {
+		log.Fatalln(err)
+	}
+
+	agent, err := oauth.NewFlowAgent(cfg.clientID, cfg.clientSecret, "localhost", cfg.port)
 	if err != nil {
 		return err
 	}
